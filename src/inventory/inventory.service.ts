@@ -39,15 +39,26 @@ export class InventoryService {
       },
     );
   }
-  findOne(id: number) {
-    return `This action returns a #${id} inventory`;
+  async findOne(id: number) {
+    const inventory = await this.prisma.inventory.findFirst({
+      where: { id: id },
+    });
+    return inventory;
   }
 
-  update(id: number, updateInventoryDto: UpdateInventoryDto) {
-    return `This action updates a #${id} inventory`;
+  async update(id: number, updateInventoryDto: UpdateInventoryDto) {
+    return await this.prisma.inventory.update({
+      where: { id },
+      data: updateInventoryDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} inventory`;
+  async remove(id: number) {
+    const result = await this.prisma.inventory.delete({
+      where: {
+        id,
+      },
+    });
+    return result;
   }
 }

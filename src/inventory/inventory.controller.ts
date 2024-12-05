@@ -60,20 +60,62 @@ export class InventoryController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.inventoryService.findOne(+id);
+  findOne(@Param('id') id: string, @Res() response: Response) {
+    const inventory = this.inventoryService.findOne(+id);
+    if (inventory) {
+      return inventory;
+    }
+    return response.status(HttpStatus.NOT_FOUND).json({
+      message: 'Inventory not found!',
+    });
   }
 
   @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateInventoryDto: UpdateInventoryDto,
+    @Res() response: Response,
   ) {
-    return this.inventoryService.update(+id, updateInventoryDto);
+    const inventory = this.inventoryService.findOne(+id);
+    if (!inventory) {
+      return response.status(HttpStatus.NOT_FOUND).json({
+        message: 'Inventory not found!',
+      });
+    }
+    const inventoryUpdated = this.inventoryService.update(
+      +id,
+      updateInventoryDto,
+    );
+
+    if (inventoryUpdated) {
+      return response.status(HttpStatus.OK).json({
+        message: 'Book inventory updated!',
+      });
+    } else {
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Book inventory update failed!',
+      });
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.inventoryService.remove(+id);
+  remove(@Param('id') id: string, @Res() response: Response) {
+    const inventory = this.inventoryService.findOne(+id);
+    if (!inventory) {
+      return response.status(HttpStatus.NOT_FOUND).json({
+        message: 'Inventory not found!',
+      });
+    }
+
+    const inventoryDeleted = this.inventoryService.remove(+id);
+    if (inventoryDeleted) {
+      return response.status(HttpStatus.OK).json({
+        message: 'Book inventory deleted!',
+      });
+    } else {
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Book inventory delete failed!',
+      });
+    }
   }
 }
